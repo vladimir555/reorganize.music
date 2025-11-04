@@ -217,9 +217,25 @@ def reorganize_music(src_dir: str, dst_dir: str):
                 continue
 
             new_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(m4a_path, new_path)
-            new_path.chmod(0o444)
 
+            # Копируем файл
+            shutil.copy2(m4a_path, new_path)
+
+            # Записываем год в тег, если его не было
+            if year and year != "0000":
+                try:
+                    audio_new = MP4(new_path)
+                    # Проверяем, есть ли уже год
+                    existing_year = get_tag(audio_new, "\xa9day", "").strip()
+                    if not existing_year or existing_year == "0" or not existing_year.isdigit():
+                        audio_new["\xa9day"] = [year]
+                        audio_new.save()
+                        print(f"📅 Записан год {year} в тег ©day для: {new_path.name}", file=sys.stderr)
+                except Exception as e:
+                    print(f"⚠️  Не удалось записать год в тег: {e}", file=sys.stderr)
+
+            # Устанавливаем права только на чтение
+            new_path.chmod(0o444)
             print(f"✅ {m4a_path} → {new_path}")
 
             time.sleep(0.3)
