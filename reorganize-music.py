@@ -9,6 +9,7 @@ import sys
 import re
 from pathlib import Path
 from mutagen.mp4 import MP4
+from typing import Optional
 
 # Кэши
 _itunes_cache = {}
@@ -60,7 +61,7 @@ def normalize_artist(artist: str) -> str:
     """Нормализует имя исполнителя для сравнения."""
     return re.sub(r'[^\w]', '', artist.lower())  # удаляем всё кроме букв/цифр
 
-def get_album_info_from_itunes(artist: str, album_query: str) -> dict | None:
+def get_album_info_from_itunes(artist: str, album_query: str) -> Optional[dict]:
     key = (artist, album_query)
     if key in _itunes_cache:
         return _itunes_cache[key]
@@ -99,7 +100,7 @@ def get_album_info_from_itunes(artist: str, album_query: str) -> dict | None:
     _itunes_cache[key] = None
     return None
 
-def get_album_info_from_reccobeats(artist: str, album: str) -> dict | None:
+def get_album_info_from_reccobeats(artist: str, album: str) -> Optional[dict]:
     key = (artist, album)
     if key in _recco_cache:
         return _recco_cache[key]
